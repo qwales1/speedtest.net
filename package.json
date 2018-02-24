@@ -13,6 +13,7 @@
 		"url": "https://github.com/ddsol/speedtest.net.git"
 	},
 	"dependencies": {
+		"browser-process-hrtime": "^0.1.2",
 		"chalk": "^2.3.1",
 		"draftlog": "^1.0.12",
 		"react-native-md5": "^1.0.0",
