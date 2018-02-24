@@ -473,9 +473,7 @@ function uploadSpeed(url, sizes, maxTime, callback) {
 
 function speedTest(options) {
 	options = options || {};
-
 	options.pingCount = options.pingCount || (options.serverId ? 1 : 5);
-
 	var self = new EventEmitter(),
 		speedInfo = {},
 		serversUrls = [
@@ -530,6 +528,7 @@ function speedTest(options) {
 		};
 
 		self.emit('config', speedInfo.config);
+		self.emit('status', 'Found Servers');
 		gotData();
 	}
 
@@ -617,6 +616,7 @@ function speedTest(options) {
 	}
 
 	function startDownload(ix) {
+		self.emit('status', 'Testing Download');
 		ix = ix || 0;
 		if (ix >= speedInfo.bestServers.length || ix >= options.maxServers) return startUpload();
 		var server = speedInfo.bestServers[ix],
@@ -658,6 +658,7 @@ function speedTest(options) {
 	}
 
 	function startUpload() {
+		self.emit('status', 'Testing Upload');
 		var sizes = [],
 			sizesizes = [
 				Math.round(0.25 * 1000 * 1000),
@@ -751,6 +752,7 @@ function speedTest(options) {
 	}
 
 	function postResults() {
+		self.emit('status', 'Posting Results');
 		var best = speedInfo.bestServer,
 			dlspeedk = Math.round(speedInfo.speedTestDownloadSpeed * 1000),
 			ulspeedk = Math.round(speedInfo.speedTestUploadSpeed * 1000),
@@ -808,7 +810,6 @@ function speedTest(options) {
 }
 
 module.exports = speedTest;
-
 /*
 function visualSpeedTest(options, callback) {
 	require('draftlog').into(console);
