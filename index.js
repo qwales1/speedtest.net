@@ -430,6 +430,7 @@ function uploadSpeed(url, sizes, maxTime, callback) {
 		//started=(started+1) % todo; //Keep staing more until the time is up...
 
 		randomPutHttp(url, size, function(err, count) {
+			if (err) self.emit('error', err);
 			//discard all data and return byte count
 			if (done >= todo) return;
 			if (err) {
@@ -451,7 +452,7 @@ function uploadSpeed(url, sizes, maxTime, callback) {
 
 			timePct = diff / maxTime * 100;
 			amtPct = done / todo * 100;
-			//amtPct=0; //time-only
+			amtPct = 0; //time-only
 
 			if (diff > maxTime) {
 				done = todo;
