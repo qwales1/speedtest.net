@@ -30,17 +30,13 @@ SOFTWARE.
 
 var parseXML = require('react-native-xml2js').parseString,
 	EventEmitter = require('events').EventEmitter,
-	HttpProxyAgent = require('http-proxy-agent'),
-	HttpsProxyAgent = require('https-proxy-agent'),
 	// These numbers were obtained by measuring and averaging both using this module and the official speedtest.net
 	speedTestDownloadCorrectionFactor = 1.135,
 	speedTestUploadCorrectionFactor = 1.139,
 	proxyOptions = null,
-	proxyHttpEnv = findPropertiesInEnvInsensitive('HTTP_PROXY'),
-	proxyHttpsEnv = findPropertiesInEnvInsensitive('HTTPS_PROXY'),
 	url = require('url'),
 	md5 = require('react-native-md5'),
-	http = require('react-native-http');
+	http = require('./http');
 
 function findPropertiesInEnvInsensitive(prop) {
 	prop = prop.toLowerCase();
@@ -50,52 +46,6 @@ function findPropertiesInEnvInsensitive(prop) {
 		}
 	}
 	return null;
-}
-
-//set the proxy agent for each http request
-// priority :
-// 1 - proxyOptions
-// 2 - proxyHttpEnv (HTTP_PROXY)
-// 3 - proxyHttpsEnv (HTTPS_PROXY)
-function proxy(options) {
-	var proxy = null,
-		isSSL = false,
-		haveHttp = false;
-
-	if (!proxyHttpEnv && !proxyHttpsEnv && !proxyOptions) {
-		return;
-	}
-	// Test the proxy parameter first for priority
-	if (proxyOptions) {
-		if (proxyOptions.substr(0, 6) === 'https:') {
-			isSSL = true;
-		}
-		proxy = proxyOptions;
-	} else {
-		// Test proxy by env
-		proxy = proxyHttpEnv;
-		if (proxyHttpEnv) {
-			//for support https in HTTP_PROXY env var
-			if (proxyHttpEnv.substr(0, 6) === 'https:') {
-				isSSL = true;
-			} else {
-				haveHttp = true;
-			}
-		} else if (proxyHttpsEnv) {
-			isSSL = true;
-			proxy = proxyHttpsEnv;
-		}
-		// for http priority
-		if (proxyHttpEnv && proxyHttpEnv.substr(0, 6) !== 'https:') {
-			haveHttp = true;
-		}
-	}
-
-	if (!isSSL || haveHttp) {
-		options.agent = new HttpProxyAgent(proxy);
-	} else {
-		options.agent = new HttpsProxyAgent(proxy);
-	}
 }
 
 function once(callback) {
@@ -134,7 +84,7 @@ function distance(origin, destination) {
 }
 
 function getHttp(theUrl, discard, callback) {
-	var http, options;
+	var options;
 
 	if (!callback) {
 		callback = discard;
@@ -147,7 +97,6 @@ function getHttp(theUrl, discard, callback) {
 
 	if (typeof options === 'string') options = url.parse(options);
 
-	proxy(options);
 	delete options.protocol;
 
 	options.headers = options.headers || {};
@@ -190,7 +139,6 @@ function postHttp(theUrl, data, callback) {
 	callback = once(callback);
 
 	var options = theUrl,
-		http,
 		req;
 
 	if (typeof options === 'string') options = url.parse(options);
@@ -203,7 +151,6 @@ function postHttp(theUrl, data, callback) {
 	options.headers['content-length'] = data.length;
 	options.method = 'POST';
 
-	proxy(options);
 	delete options.protocol;
 
 	req = http.request(options, function(res) {
@@ -236,7 +183,6 @@ function randomPutHttp(theUrl, size, callback) {
 		toSend = size,
 		sent1 = false,
 		dataBlock,
-		http,
 		headerName,
 		request;
 
@@ -256,7 +202,6 @@ function randomPutHttp(theUrl, size, callback) {
 		return d.substr(0, 1024 * 16);
 	})();
 
-	proxy(options);
 	delete options.protocol;
 
 	request = http.request(options, function(response) {
@@ -863,9 +808,11 @@ function speedTest(options) {
 }
 
 module.exports = speedTest;
-
+/*
 function visualSpeedTest(options, callback) {
-	require('draftlog').into(console);
+	if (isNode()) {
+		require('draftlog').into(console);
+	}
 
 	// We only need chalk and DraftLog here. Lazy load it.
 	var chalk = require('chalk'),
@@ -995,3 +942,4 @@ function visualSpeedTest(options, callback) {
 }
 
 speedTest.visual = visualSpeedTest;
+*/
