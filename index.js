@@ -147,7 +147,6 @@ function getHttp(theUrl, discard, callback) {
 
 	if (typeof options === 'string') options = url.parse(options);
 
-	var http = require('http');
 	proxy(options);
 	delete options.protocol;
 
@@ -204,7 +203,6 @@ function postHttp(theUrl, data, callback) {
 	options.headers['content-length'] = data.length;
 	options.method = 'POST';
 
-	http = require('http');
 	proxy(options);
 	delete options.protocol;
 
@@ -258,7 +256,6 @@ function randomPutHttp(theUrl, size, callback) {
 		return d.substr(0, 1024 * 16);
 	})();
 
-	http = require('http');
 	proxy(options);
 	delete options.protocol;
 
