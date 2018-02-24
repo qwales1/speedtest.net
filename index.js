@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 'use strict';
-require('node-libs-react-native/globals');
+
 var parseXML = require('react-native-xml2js').parseString,
 	EventEmitter = require('events').EventEmitter,
 	// These numbers were obtained by measuring and averaging both using this module and the official speedtest.net
@@ -35,8 +35,7 @@ var parseXML = require('react-native-xml2js').parseString,
 	speedTestUploadCorrectionFactor = 1.139,
 	proxyOptions = null,
 	url = require('url'),
-	md5 = require('react-native-md5'),
-	http = require('node-libs-react-native').http;
+	md5 = require('react-native-md5');
 
 function findPropertiesInEnvInsensitive(prop) {
 	prop = prop.toLowerCase();
@@ -84,7 +83,7 @@ function distance(origin, destination) {
 }
 
 function getHttp(theUrl, discard, callback) {
-	var options;
+	var options, http;
 
 	if (!callback) {
 		callback = discard;
@@ -97,6 +96,7 @@ function getHttp(theUrl, discard, callback) {
 
 	if (typeof options === 'string') options = url.parse(options);
 
+	http = require(options.protocol === 'https:' ? 'https' : 'http');
 	delete options.protocol;
 
 	options.headers = options.headers || {};
@@ -107,9 +107,10 @@ function getHttp(theUrl, discard, callback) {
 			'.' +
 			Math.trunc(Math.random() * 400 + 103) +
 			' Safari/537.36';
-
+	console.log('here');
 	http
-		.get(options, function(res) {
+		.request(options, function(res) {
+			console.log('YEAH');
 			if (res.statusCode === 302) {
 				return getHttp(res.headers.location, discard, callback);
 			}
@@ -139,9 +140,12 @@ function postHttp(theUrl, data, callback) {
 	callback = once(callback);
 
 	var options = theUrl,
-		req;
+		req,
+		http;
 
 	if (typeof options === 'string') options = url.parse(options);
+
+	http = options.protocol === 'https:' ? require('https') : require('http');
 
 	options.headers = options.headers || {};
 	options.headers['user-agent'] =
@@ -151,6 +155,7 @@ function postHttp(theUrl, data, callback) {
 	options.headers['content-length'] = data.length;
 	options.method = 'POST';
 
+	http = require(options.protocol === 'https:' ? 'https' : 'http');
 	delete options.protocol;
 
 	req = http.request(options, function(res) {
@@ -184,7 +189,8 @@ function randomPutHttp(theUrl, size, callback) {
 		sent1 = false,
 		dataBlock,
 		headerName,
-		request;
+		request,
+		http;
 
 	if (typeof options === 'string') options = url.parse(theUrl);
 
@@ -202,6 +208,7 @@ function randomPutHttp(theUrl, size, callback) {
 		return d.substr(0, 1024 * 16);
 	})();
 
+	http = require(options.protocol === 'https:' ? 'https' : 'http');
 	delete options.protocol;
 
 	request = http.request(options, function(response) {
@@ -239,11 +246,11 @@ function randomPutHttp(theUrl, size, callback) {
 
 function getXML(xmlurl, callback) {
 	callback = once(callback);
-
 	getHttp(xmlurl, function(err, data) {
 		if (err) return callback(err);
 		parseXML(data, function(err, xml) {
 			if (err) return callback(err);
+			console.log(xml);
 			callback(null, xml);
 		});
 	});
@@ -508,7 +515,6 @@ function speedTest(options) {
 	//Fetch config
 
 	getXML(httpOpts('http://www.speedtest.net/speedtest-config.php'), gotConfig);
-
 	function gotConfig(err, config) {
 		if (err) return self.emit('error', err);
 		config = (config && config.settings) || {};
@@ -808,11 +814,9 @@ function speedTest(options) {
 }
 
 module.exports = speedTest;
-/*
+
 function visualSpeedTest(options, callback) {
-	if (isNode()) {
-		require('draftlog').into(console);
-	}
+	require('draftlog').into(console);
 
 	// We only need chalk and DraftLog here. Lazy load it.
 	var chalk = require('chalk'),
@@ -942,4 +946,3 @@ function visualSpeedTest(options, callback) {
 }
 
 speedTest.visual = visualSpeedTest;
-*/
