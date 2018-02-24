@@ -180,6 +180,7 @@ function randomPutHttp(theUrl, size, callback) {
 		headers = {
 			'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:24.0) Gecko/20100101 Firefox/24.0',
 			'content-length': size,
+			'content-type': 'text/plain',
 		},
 		toSend = size,
 		sent1 = false,
@@ -196,6 +197,7 @@ function randomPutHttp(theUrl, size, callback) {
 	}
 
 	options.method = 'POST';
+	options.mode = 'disable-fetch';
 
 	dataBlock = (function() {
 		var d = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -204,23 +206,21 @@ function randomPutHttp(theUrl, size, callback) {
 	})();
 
 	delete options.protocol;
-
 	request = http.request(options, function(response) {
-		response.on('error', callback);
 		response.on('data', function(newData) {
 			//discard
 		});
 		response.on('end', function() {
 			// Some cases (like HTTP 413) will interrupt the upload, but still return a response
-			callback(null, size - toSend);
+			var diff = size - toSend;
+			callback(null, diff);
 		});
 	});
-
-	request.on('error', callback);
 
 	function write() {
 		do {
 			if (!toSend) {
+				request.end();
 				return; //we're done sending...
 			}
 			var data = dataBlock;
@@ -233,6 +233,7 @@ function randomPutHttp(theUrl, size, callback) {
 		} while (request.write(data));
 	}
 
+	request.on('error', callback);
 	request.on('drain', write);
 
 	write();
@@ -428,11 +429,11 @@ function uploadSpeed(url, sizes, maxTime, callback) {
 
 		started++;
 		//started=(started+1) % todo; //Keep staing more until the time is up...
-
 		randomPutHttp(url, size, function(err, count) {
-			if (err) self.emit('error', err);
+			if (err) return callback(err);
 			//discard all data and return byte count
 			if (done >= todo) return;
+
 			if (err) {
 				count = 0;
 			}
@@ -453,7 +454,6 @@ function uploadSpeed(url, sizes, maxTime, callback) {
 			timePct = diff / maxTime * 100;
 			amtPct = done / todo * 100;
 			amtPct = 0; //time-only
-
 			if (diff > maxTime) {
 				done = todo;
 			}
@@ -811,7 +811,7 @@ function speedTest(options) {
 }
 
 module.exports = speedTest;
-/*
+
 function visualSpeedTest(options, callback) {
 	require('draftlog').into(console);
 
@@ -942,4 +942,4 @@ function visualSpeedTest(options, callback) {
 	return test;
 }
 
-speedTest.visual = visualSpeedTest; */
+speedTest.visual = visualSpeedTest;

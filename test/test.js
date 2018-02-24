@@ -14,6 +14,6 @@ console.dump = function() {
 	console.log(s.join(' '));
 };
 
-speedTest.visual({ maxTime: 10000, log: true, maxServers: 4 }, function(err, data) {
+speedTest.visual({ maxTime: 10000, log: true, maxServers: 2 }, function(err, data) {
 	console.dump(data);
 });
