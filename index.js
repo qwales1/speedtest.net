@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 'use strict';
-
+require('node-libs-react-native/globals');
 var parseXML = require('react-native-xml2js').parseString,
 	EventEmitter = require('events').EventEmitter,
 	// These numbers were obtained by measuring and averaging both using this module and the official speedtest.net
@@ -36,7 +36,7 @@ var parseXML = require('react-native-xml2js').parseString,
 	proxyOptions = null,
 	url = require('url'),
 	md5 = require('react-native-md5'),
-	http = require('stream-http');
+	http = require('http');
 
 function findPropertiesInEnvInsensitive(prop) {
 	prop = prop.toLowerCase();

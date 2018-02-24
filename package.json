@@ -13,6 +13,7 @@
 		"url": "https://github.com/ddsol/speedtest.net.git"
 	},
 	"dependencies": {
+		"node-libs-react-native": "^1.0.2",
 		"react-native-md5": "^1.0.0",
 		"react-native-xml2js": "^1.0.3",
 		"stream-http": "^2.8.0",
