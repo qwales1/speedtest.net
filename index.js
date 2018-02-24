@@ -39,7 +39,8 @@ var parseXML = require('react-native-xml2js').parseString,
 	proxyHttpEnv = findPropertiesInEnvInsensitive('HTTP_PROXY'),
 	proxyHttpsEnv = findPropertiesInEnvInsensitive('HTTPS_PROXY'),
 	url = require('url'),
-	md5 = require('react-native-md5');
+	md5 = require('react-native-md5'),
+	http = require('react-native-http');
 
 function findPropertiesInEnvInsensitive(prop) {
 	prop = prop.toLowerCase();
