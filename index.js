@@ -808,6 +808,7 @@ function speedTest(options) {
 
 module.exports = speedTest;
 
+/*
 function visualSpeedTest(options, callback) {
 	require('draftlog').into(console);
 
@@ -938,4 +939,4 @@ function visualSpeedTest(options, callback) {
 	return test;
 }
 
-speedTest.visual = visualSpeedTest;
+speedTest.visual = visualSpeedTest; */
