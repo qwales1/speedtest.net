@@ -31,7 +31,7 @@ SOFTWARE.
 var parseXML = require('react-native-xml2js').parseString,
 	EventEmitter = require('events').EventEmitter,
 	// These numbers were obtained by measuring and averaging both using this module and the official speedtest.net
-	speedTestDownloadCorrectionFactor = 1.335,
+	speedTestDownloadCorrectionFactor = 1.98,
 	speedTestUploadCorrectionFactor = 1.339,
 	proxyOptions = null,
 	url = require('url'),
